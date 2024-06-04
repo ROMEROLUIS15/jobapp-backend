@@ -1,11 +1,11 @@
 {
-  "name": "jobapp_nc",
+  "name": "jobapp-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server",
-    "dev": "nodemon src/server",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
     "test": "jest --detectOpenHandles",
     "migrate:reset": "node ./src/tests/testMigrate.js",
     "pretest": "npm run migrate:reset"

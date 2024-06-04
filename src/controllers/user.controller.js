@@ -77,15 +77,11 @@ const getLoggedUser = catchError(async(req,res) => {
     return res.json(user)
 })
 
-//logout
 const logout = catchError(async(req,res) => {
     res.cookie('token', "", {
     expires: new Date(0)
     })
     return res.status(200).json({message:'Login again'})
-
-    // res.cookie('token', '' ,{maxAge:1})
-    // res.status(200).redirect('/')
 })
 
 
