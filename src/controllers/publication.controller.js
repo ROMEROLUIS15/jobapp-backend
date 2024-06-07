@@ -3,7 +3,7 @@ const Publication = require('../models/Publication')
 const User = require('../models/User')
 
 const getAll =  catchError(async(req,res) => {
-    const publication = await Publication.findAll()
+    const publication = await Publication.findAll({include: [User]})
     return res.json(publication)
 })
 

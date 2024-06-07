@@ -15,10 +15,11 @@ app.use(helmet({
 app.use(cors());
 
 app.use('/api/v1',router);
+app.use(errorHandler)
 app.get('/', (req, res) => {
     return res.send("Welcome to Jobapp_nc");
 })
 
-app.use(errorHandler)
+
 
 module.exports = app;

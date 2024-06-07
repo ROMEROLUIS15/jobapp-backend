@@ -10,19 +10,34 @@ const getAll = catchError(async(req, res) => {
     return res.json(users);
 });
 
-const createUser = catchError(async(req, res) => {
-    const { name, email, phone, password, availability, rating, img} = req.body
-    const encriptedPassword = await bcrypt.hash(password, 10)
-    const user = await User.create({
-        name,
-        email,
-        phone,
-        password: encriptedPassword,
-        availability,
-        rating,
-        img,
-    });
-    return res.status(201).json(user);
+const createUser = catchError(async (req, res) => {
+    const { name, email, phone, password, availability, rating, img } = req.body;
+
+    const registeredUser = await User.findOne({ where: { email } });
+    if (registeredUser) {
+        return res.status(400).json({ message: 'Email is already registered.' });
+    }
+
+    const encriptedPassword = await bcrypt.hash(password, 10);
+
+    try {
+        const user = await User.create({
+            name,
+            email,
+            phone,
+            password: encriptedPassword,
+            availability,
+            rating,
+            img,
+        });
+
+        return res.status(201).json(user);
+    } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({ message: 'Email is already registered.' });
+        }
+        return res.status(500).json({ message: 'Internal Server Error.' });
+    }
 });
 
 const getOne = catchError(async(req, res) => {
@@ -71,11 +86,17 @@ const login = catchError(async(req, res) => {
     return res.json({ user, token });
 })
 
-const getLoggedUser = catchError(async(req,res) => {
-    const user = req.user
-    console.log(user)
-    return res.json(user)
+const getLoggedUser = catchError(async (req, res) => {
+    const userId = req.user.id;
+
+    const user = await User.findOne({include: [Publication]});
+
+    if (!user) {
+        return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    return res.json(user);
 })
+
 
 const logout = catchError(async(req,res) => {
     res.cookie('token', "", {
