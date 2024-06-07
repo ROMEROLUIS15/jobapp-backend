@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const Publication = require('../models/Publication');
 
+const blacklist = new Set()
 
 const getAll = catchError(async(req, res) => {
     const users = await User.findAll({include: [Publication]});
@@ -11,7 +12,7 @@ const getAll = catchError(async(req, res) => {
 });
 
 const createUser = catchError(async (req, res) => {
-    const { name, email, phone, password, availability, rating, img } = req.body;
+    const { name, email, phone, password, availability, rating, img, description } = req.body;
 
     const registeredUser = await User.findOne({ where: { email } });
     if (registeredUser) {
@@ -29,6 +30,7 @@ const createUser = catchError(async (req, res) => {
             availability,
             rating,
             img,
+            description,
         });
 
         return res.status(201).json(user);
@@ -60,9 +62,9 @@ const removeUser = catchError(async(req, res) => {
 
 const updateUser = catchError(async(req, res) => {
     const { id } = req.params;
-    const { name, phone, availability, rating, img } = req.body
+    const { name, phone, availability, rating, img, description } = req.body
     const user = await User.update(
-        {name, phone, availability, rating, img},
+        {name, phone, availability, rating, img, description},
         { where: {id}, returning: true }
     );
     if(user[0] === 0) return res.sendStatus(404);
@@ -98,12 +100,18 @@ const getLoggedUser = catchError(async (req, res) => {
 })
 
 
-const logout = catchError(async(req,res) => {
-    res.cookie('token', "", {
-    expires: new Date(0)
-    })
-    return res.status(200).json({message:'Login again'})
-})
+const logout = catchError(async (req, res) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(400).json({ message: "Token not provided" });
+    }
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(400).json({ message: "Invalid token" });
+    }
+    blacklist.add(token);
+    return res.status(200).json({ message: "Successful logout" });
+});
 
 
 module.exports = {
