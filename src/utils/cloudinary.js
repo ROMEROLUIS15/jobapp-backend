@@ -9,7 +9,7 @@ cloudinary.config({
 });
 
 
-const folder = "node_app";
+const folder = "jobapp";
 
 const uploadToCloudinary = async(file) => {
 	const { path: filePath, filename } = file
