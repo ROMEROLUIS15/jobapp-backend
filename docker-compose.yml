@@ -1,29 +1,23 @@
 version: '3.8'
-
 services:
-  jobapp_nc:
-    container_name: jobapp-container
-    image: jobapp-nc:1.0
-    build: .
-    ports:
-      - "3000:3000"
+  db:
+    image: postgres:12
     environment:
-      - PORT=3000
-    depends_on:
-      - jobapp_nc_db
-  jobapp_nc_db:
-    container_name: jobapp-backend
-    image: "postgres:12"
-    expose:
-      - "3000"
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
+  
+  app:
+    build: .
     environment:
-      - POSTGRES_USER=root
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_DD=jobapp_nc_db
-    volumes:
-      - nps_data:/var/lib/postgresql/
-
-volumes:
-  nps_data: {}
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
